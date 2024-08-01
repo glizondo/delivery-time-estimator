@@ -50,12 +50,11 @@ locations = [
     ("721 Broadway, New York, NY", "1600 Amphitheatre Parkway, Mountain View, CA", 2887)
 ]
 
-
 def random_dates(start, end, n=1):
-    start_u = start.value // 10 ** 9
-    end_u = end.value // 10 ** 9
-    return pd.to_datetime(np.random.randint(start_u, end_u, n), unit='s')
-
+    start_u = start.value // 10**9
+    end_u = end.value // 10**9
+    dates = pd.to_datetime(np.random.randint(start_u, end_u, n), unit='s')
+    return dates.strftime('%Y-%m-%d')
 
 def generate_vehicle_eta_data(num_rows):
     data = []
@@ -66,44 +65,48 @@ def generate_vehicle_eta_data(num_rows):
         point_b = point[1]
         distance = point[2]
 
-        avg_speed = np.random.uniform(25, 60)
-        min_speed = avg_speed - np.random.uniform(10, 15)
-        max_speed = avg_speed + np.random.uniform(10, 20)
+        avg_speed = round(np.random.uniform(25, 60), 2)
+        min_speed = round(avg_speed - np.random.uniform(10, 15), 2)
+        max_speed = round(avg_speed + np.random.uniform(10, 20), 2)
 
-        min_speed = min(min_speed, avg_speed - 1)
-        max_speed = max(max_speed, avg_speed + 1)
+        min_speed = round(min(min_speed, avg_speed - 1), 2)
+        max_speed = round(max(max_speed, avg_speed + 1), 2)
 
         if min_speed > max_speed or min_speed < 40 or max_speed > 80:
             continue
 
+        base_travel_time = round(distance / avg_speed, 2)  # in hours
+        stop_time = round(np.random.uniform(0.1, 0.5) * np.random.randint(0, 5), 2)  # random stop time in hours
+        traffic_delay = round(np.random.uniform(0.05, 0.3) * np.random.choice([0, 1, 2]), 2)  # random traffic delay in hours
+        travel_time = round(base_travel_time + stop_time + traffic_delay, 2)
+
         row = {
-            "Point A": point_a,
-            "Point B": point_b,
-            "Distance (miles)": distance,
-            "Avg Speed (mph)": avg_speed,
-            "Max Speed (mph)": max_speed,
-            "Min Speed (mph)": min_speed,
-            "Weather/Road Condition": np.random.choice([0, 1, 2, 3]),
-            "Date": random_dates(pd.to_datetime('2023-01-01'), pd.to_datetime('2023-12-31'), 1)[0],
-            "Departure Time (HH:MM)": (datetime(2023, 1, 1) + timedelta(minutes=random.randint(0, 1440))).strftime(
-                '%H:%M'),
-            "Number of Pitstops": np.random.randint(0, 5),
-            "Vehicle Type": np.random.choice([0, 1, 2]),
-            "Vehicle Weight (lbs)": np.random.uniform(2200, 88000),
-            "Age of Driver (years)": np.random.randint(18, 70),
-            "Fuel Capacity (gallons)": np.random.uniform(10, 105),
-            "Traffic Condition": np.random.choice([0, 1, 2])
+            "point_a": point_a,
+            "point_b": point_b,
+            "distance": distance,
+            "avg_speed": avg_speed,
+            "max_speed": max_speed,
+            "min_speed": min_speed,
+            "road_condition": np.random.choice([0, 1, 2, 3]),
+            "date": random_dates(pd.to_datetime('2023-01-01'), pd.to_datetime('2023-12-31'))[0],
+            "departure_time": (datetime(2023, 1, 1) + timedelta(minutes=random.randint(0, 1440))).strftime('%H:%M'),
+            "number_stops": np.random.randint(0, 5),
+            "vehicle_type": np.random.choice([0, 1, 2]),
+            "vehicle_weight": round(np.random.uniform(2200, 88000), 2),
+            "driver_age": np.random.randint(18, 70),
+            "fuel_capacity": round(np.random.uniform(10, 105), 2),
+            "traffic_condition": np.random.choice([0, 1, 2]),
+            "travel_time": travel_time  # Adding travel time
         }
 
         data.append(row)
 
     df = pd.DataFrame(data)
 
-    file_path = 'vehicle_eta_training_data.csv'
+    file_path = 'vehicle_eta_validation_data.csv'
     df.to_csv(file_path, index=False)
 
     return file_path
-
 
 num_rows = 20000
 generate_vehicle_eta_data(num_rows)
