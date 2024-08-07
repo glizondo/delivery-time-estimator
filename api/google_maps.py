@@ -1,8 +1,8 @@
 import googlemaps
-import credentials.user_credentials
+import credentials.google_maps_creds
 import numpy as np
 
-API_KEY = credentials.user_credentials.google_api_creds
+API_KEY = credentials.google_maps_creds.google_api_creds
 gmaps = googlemaps.Client(key=API_KEY)
 
 
