@@ -84,26 +84,21 @@ def generate_vehicle_eta_data(num_rows):
             "point_a": point_a,
             "point_b": point_b,
             "distance": distance,
-            "avg_speed": avg_speed,
             "max_speed": max_speed,
-            "min_speed": min_speed,
             "road_condition": np.random.choice([0, 1, 2, 3]),
+            "traffic_condition": np.random.choice([0, 1, 2]),
             "date": random_dates(pd.to_datetime('2023-01-01'), pd.to_datetime('2023-12-31'))[0],
             "departure_time": (datetime(2023, 1, 1) + timedelta(minutes=random.randint(0, 1440))).strftime('%H:%M'),
-            "number_stops": np.random.randint(0, 5),
-            "vehicle_type": np.random.choice([0, 1, 2]),
-            "vehicle_weight": round(np.random.uniform(2200, 88000), 2),
+            "vehicle_type": np.random.choice(["SUV", "Sedan", "Semi-truck", "Truck", "Motorcycle", "Car/Trailer"]),
             "driver_age": np.random.randint(18, 70),
-            "fuel_capacity": round(np.random.uniform(10, 105), 2),
-            "traffic_condition": np.random.choice([0, 1, 2]),
-            "travel_time": travel_time  # Adding travel time
+            "travel_time": travel_time
         }
 
         data.append(row)
 
     df = pd.DataFrame(data)
 
-    file_path = 'vehicle_eta_validation_data.csv'
+    file_path = 'vehicle_eta_training_data.csv'
     df.to_csv(file_path, index=False)
 
     return file_path

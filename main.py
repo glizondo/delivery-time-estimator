@@ -1,3 +1,5 @@
+from datetime import date, datetime, timedelta
+
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
@@ -7,26 +9,10 @@ from sklearn.pipeline import Pipeline
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error
 
+from api import google_maps
+
 # Sample data
 data = pd.read_csv("data/vehicle_eta_training_data.csv")
-# data = {
-#     'point_a': ['A', 'B', 'A', 'C'],
-#     'point_b': ['B', 'C', 'C', 'D'],
-#     'distance': [50, 70, 30, 90],
-#     'avg_speed': [60, 55, 70, 65],
-#     'max_speed': [100, 90, 120, 110],
-#     'min_speed': [40, 30, 50, 45],
-#     'road_condition': ['Good', 'Fair', 'Poor', 'Good'],
-#     'date': ['2024-07-30', '2024-07-31', '2024-08-01', '2024-08-02'],
-#     'departure_time': ['08:00', '09:00', '10:00', '11:00'],
-#     'num_pitstops': [1, 0, 2, 1],
-#     'vehicle_type': ['Sedan', 'SUV', 'Truck', 'Sedan'],
-#     'vehicle_weight': [1500, 2000, 3500, 1600],
-#     'driver_age': [35, 40, 50, 30],
-#     'fuel_capacity': [50, 60, 80, 55],
-#     'traffic_condition': ['Light', 'Heavy', 'Moderate', 'Light'],
-#     'travel_time': [50, 70, 30, 90]  # time in minutes
-# }
 
 # Convert the dictionary to a pandas DataFrame
 df = pd.DataFrame(data)
@@ -39,11 +25,10 @@ y = df['travel_time']
 preprocessor = ColumnTransformer(
     transformers=[
         ('num', StandardScaler(), [
-            'distance', 'avg_speed', 'max_speed', 'min_speed', 'road_condition', 'number_stops', 'vehicle_weight',
-            'vehicle_type', 'driver_age', 'fuel_capacity', 'traffic_condition'
+            'distance', 'max_speed', 'road_condition', 'driver_age', 'traffic_condition'
         ]),
         ('cat', OneHotEncoder(handle_unknown='ignore'), [
-            'point_a', 'point_b', 'date', 'departure_time'
+            'point_a', 'point_b', 'date', 'departure_time', 'vehicle_type'
         ])
     ],
     remainder='passthrough'
@@ -73,19 +58,22 @@ new_data = pd.DataFrame({
     'point_a': ['1600 Pennsylvania Ave NW, Washington, DC'],
     'point_b': ['350 5th Ave, New York, NY'],
     'distance': [226],
-    'avg_speed': [57.63],
-    'max_speed': [77.17],
-    'min_speed': [43.05],
-    'road_condition': [3],
-    'date': ['12/2/2023'],
-    'departure_time': ['20:37'],
-    'number_stops': [0],
-    'vehicle_type': [2],
-    'vehicle_weight': [29269.87],
-    'driver_age': [35],
-    'fuel_capacity': [60.81],
-    'traffic_condition': [1]
+    'max_speed': [75],
+    'road_condition': [np.random.choice([0, 1, 2, 3])],  # Random road condition
+    'traffic_condition': [np.random.choice([0, 1, 2])],  # Random traffic condition
+    'date': [date.today().strftime('%Y-%m-%d')],
+    'departure_time': [(datetime.now() + timedelta(hours=1)).strftime('%H:%M')],
+    'vehicle_type': ['SUV'],
+    'driver_age': [35]
 })
+
+departure_time = datetime.now() + timedelta(hours=1)
+distance, road_condition, traffic_condition, _ = google_maps.get_conditions(
+    new_data.at[0, 'point_a'], new_data.at[0, 'point_b'], departure_time
+)
+new_data.at[0, 'distance'] = distance
+new_data.at[0, 'road_condition'] = road_condition
+new_data.at[0, 'traffic_condition'] = traffic_condition
 
 predicted_time = model.predict(new_data)
 print(f"Predicted travel time: {predicted_time[0]} hours")
