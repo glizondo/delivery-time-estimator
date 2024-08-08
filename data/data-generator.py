@@ -98,7 +98,7 @@ def generate_vehicle_eta_data(num_rows):
 
     df = pd.DataFrame(data)
 
-    file_path = 'vehicle_eta_training_data.csv'
+    file_path = 'vehicle_eta_validation_data.csv'
     df.to_csv(file_path, index=False)
 
     return file_path
