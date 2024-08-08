@@ -7,17 +7,6 @@ gmaps = googlemaps.Client(key=API_KEY)
 
 
 def map_conditions(value, thresholds, conditions):
-    """
-    Map a continuous value to a discrete condition based on thresholds.
-
-    Parameters:
-    - value: The real value to be mapped.
-    - thresholds: List of thresholds to define conditions.
-    - conditions: List of integer conditions corresponding to each threshold.
-
-    Returns:
-    - Integer condition based on the value and thresholds.
-    """
     for threshold, condition in zip(thresholds, conditions):
         if value <= threshold:
             return condition

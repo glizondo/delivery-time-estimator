@@ -50,11 +50,13 @@ locations = [
     ("721 Broadway, New York, NY", "1600 Amphitheatre Parkway, Mountain View, CA", 2887)
 ]
 
+
 def random_dates(start, end, n=1):
-    start_u = start.value // 10**9
-    end_u = end.value // 10**9
+    start_u = start.value // 10 ** 9
+    end_u = end.value // 10 ** 9
     dates = pd.to_datetime(np.random.randint(start_u, end_u, n), unit='s')
     return dates.strftime('%Y-%m-%d')
+
 
 def generate_vehicle_eta_data(num_rows):
     data = []
@@ -77,7 +79,8 @@ def generate_vehicle_eta_data(num_rows):
 
         base_travel_time = round(distance / avg_speed, 2)  # in hours
         stop_time = round(np.random.uniform(0.1, 0.5) * np.random.randint(0, 5), 2)  # random stop time in hours
-        traffic_delay = round(np.random.uniform(0.05, 0.3) * np.random.choice([0, 1, 2]), 2)  # random traffic delay in hours
+        traffic_delay = round(np.random.uniform(0.05, 0.3) * np.random.choice([0, 1, 2]),
+                              2)  # random traffic delay in hours
         travel_time = round(base_travel_time + stop_time + traffic_delay, 2)
 
         row = {
@@ -102,6 +105,7 @@ def generate_vehicle_eta_data(num_rows):
     df.to_csv(file_path, index=False)
 
     return file_path
+
 
 num_rows = 20000
 generate_vehicle_eta_data(num_rows)

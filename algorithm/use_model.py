@@ -5,7 +5,6 @@ import pandas as pd
 
 from api import google_maps
 
-# Predict travel time for new data
 # User only inputs point A, B, max_speed, vehicle_type, driver_age
 new_data = pd.DataFrame({
     'point_a': ['100 Universal City Plaza, Universal City, CA'],
@@ -29,6 +28,11 @@ new_data.at[0, 'road_condition'] = road_condition
 new_data.at[0, 'traffic_condition'] = traffic_condition
 
 model = joblib.load('../model.h5')
+
+print(f'Distance: {distance}')
+print(f'Road Condition: {road_condition}')
+print(f'Traffic Condition: {traffic_condition}')
+
 
 predicted_time = model.predict(new_data)
 print(f"Predicted travel time: {predicted_time[0]} hours")
